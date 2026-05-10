@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>外籍員工 LINE 公告產生器｜萬語通 SOP 工具</title>
+  <meta name="description" content="外籍員工 LINE 公告產生器。快速產生加班、請假、工安、機台 SOP、宿舍與 LINE 群組公告。">
+  <meta name="theme-color" content="#10202a">
+  <style>
+    :root { --ink: #10202a; --muted: #53616d; --line: #d8e1e6; --paper: #f6f8f6; --green: #178f5b; --green-dark: #0f6e49; --mint: #8ef0b8; --panel: #ffffff; --shadow: 0 18px 45px rgba(16, 32, 42, .13); }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: #10202a; font-family: "Microsoft JhengHei", "PingFang TC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.65; }
+    a { color: inherit; text-decoration: none; }
+    .nav { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px clamp(20px, 5vw, 64px); border-bottom: 1px solid rgba(255, 255, 255, .12); background: rgba(16, 32, 42, .92); color: #fff; backdrop-filter: blur(14px); }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; }
+    .brand-dot { width: 13px; height: 13px; border-radius: 999px; background: var(--mint); box-shadow: 0 0 0 5px rgba(142, 240, 184, .16); }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 18px; border-radius: 8px; border: 1px solid var(--ink); background: var(--ink); color: #fff; font: inherit; font-weight: 900; white-space: nowrap; cursor: pointer; }
+    .button.secondary { border-color: var(--line); background: #fff; color: var(--ink); }
+    .app { max-width: 1180px; margin: 0 auto; padding: clamp(34px, 6vw, 72px) clamp(20px, 5vw, 32px) 56px; color: #fff; }
+    .eyebrow { margin: 0 0 16px; color: var(--mint); font-size: 15px; font-weight: 900; }
+    h1 { margin: 0; max-width: 860px; font-size: clamp(34px, 5vw, 64px); line-height: 1.08; letter-spacing: 0; }
+    .lead { max-width: 860px; margin: 18px 0 0; color: rgba(255, 255, 255, .75); font-size: clamp(17px, 2vw, 21px); }
+    .generator-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(330px, 470px); gap: 18px; align-items: stretch; margin-top: 34px; }
+    .generator-panel, .output-panel { border: 1px solid rgba(255, 255, 255, .14); border-radius: 8px; background: rgba(255, 255, 255, .06); box-shadow: 0 18px 45px rgba(0, 0, 0, .24); }
+    .generator-panel { padding: 22px; }
+    .scenario-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 18px; }
+    .scenario-button, .mini-button { min-height: 42px; border: 1px solid rgba(255, 255, 255, .18); border-radius: 8px; background: rgba(255, 255, 255, .08); color: #fff; font: inherit; font-weight: 900; cursor: pointer; }
+    .scenario-button.active { border-color: var(--mint); background: var(--mint); color: var(--ink); }
+    .scenario-summary { display: grid; gap: 4px; margin-bottom: 18px; padding: 14px 16px; border-left: 4px solid var(--mint); border-radius: 8px; background: rgba(255, 255, 255, .08); }
+    .scenario-summary strong { font-size: 20px; }
+    .scenario-summary span { color: rgba(255, 255, 255, .72); }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .form-grid label { display: grid; gap: 7px; color: rgba(255, 255, 255, .78); font-size: 14px; font-weight: 900; }
+    input, select, textarea { width: 100%; border: 1px solid rgba(255, 255, 255, .14); border-radius: 8px; background: rgba(255, 255, 255, .94); color: var(--ink); font: inherit; line-height: 1.5; }
+    input, select { min-height: 46px; padding: 10px 12px; }
+    textarea { resize: vertical; padding: 10px 12px; }
+    .wide-field { grid-column: 1 / -1; }
+    .output-panel { display: flex; flex-direction: column; padding: 18px; background: #f8fbf9; color: var(--ink); }
+    .output-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 12px; }
+    .output-head div { display: grid; gap: 2px; }
+    .output-head span { color: var(--muted); font-size: 13px; }
+    .output-head .mini-button { min-height: 38px; padding: 0 13px; border-color: var(--line); background: #fff; color: var(--ink); }
+    #output { flex: 1; min-height: 390px; border-color: var(--line); background: #fff; white-space: pre-wrap; }
+    .output-actions { display: flex; gap: 10px; margin-top: 12px; }
+    .copy-status { min-height: 22px; margin: 10px 0 0; color: var(--green-dark); font-size: 14px; font-weight: 900; }
+    .note { max-width: 1180px; margin: 0 auto; padding: 0 clamp(20px, 5vw, 32px) 38px; color: rgba(255, 255, 255, .64); font-size: 14px; }
+    @media (max-width: 900px) { .generator-layout, .form-grid { grid-template-columns: 1fr; } .scenario-tabs { grid-template-columns: 1fr 1fr; } .output-actions { flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="index.html"><span class="brand-dot"></span><span>外籍員工 LINE 公告產生器</span></a>
+    <a class="button secondary" href="index.html">回產品頁</a>
+  </header>
+
+  <main class="app">
+    <p class="eyebrow">免費試用工具</p>
+    <h1>把現場口頭交代，變成可以貼到 LINE 的公告。</h1>
+    <p class="lead">選一個情境，填日期、時間、地點、主管與注意事項，系統會整理成中文公告加翻譯指令。這是 SOP 包的第一個獨立小程式。</p>
+
+    <section class="generator-layout" aria-label="外籍員工 SOP 公告產生器">
+      <div class="generator-panel">
+        <div class="scenario-tabs" aria-label="情境選擇">
+          <button class="scenario-button active" type="button" data-scenario="overtime">加班</button>
+          <button class="scenario-button" type="button" data-scenario="leave">請假</button>
+          <button class="scenario-button" type="button" data-scenario="safety">工安</button>
+          <button class="scenario-button" type="button" data-scenario="machine">機台 SOP</button>
+          <button class="scenario-button" type="button" data-scenario="dorm">宿舍</button>
+          <button class="scenario-button" type="button" data-scenario="line">LINE 群組</button>
+        </div>
+
+        <div class="scenario-summary"><strong id="scenarioTitle">加班通知</strong><span id="scenarioHelper">適合臨時加班、週末加班、趕出貨前的 LINE 公告。</span></div>
+
+        <div class="form-grid">
+          <label>公司名稱<input id="company" type="text" value="萬語通示範工廠" autocomplete="organization"></label>
+          <label>目標語言<select id="language"><option value="越南文">越南文</option><option value="印尼文">印尼文</option><option value="泰文">泰文</option><option value="英文">英文</option></select></label>
+          <label><span data-label-for="date">加班日期</span><input id="date" type="text" placeholder="例如：5/15（星期五）"></label>
+          <label><span data-label-for="time">加班時間</span><input id="time" type="text" placeholder="例如：18:00-21:00"></label>
+          <label><span data-label-for="place">集合地點</span><input id="place" type="text" placeholder="例如：A 棟 1 樓產線入口"></label>
+          <label><span data-label-for="owner">負責主管</span><input id="owner" type="text" placeholder="例如：王課長"></label>
+          <label class="wide-field"><span data-label-for="note">補充事項</span><textarea id="note" rows="3" placeholder="例如：請先吃飯，不能配合請今天下班前回覆。"></textarea></label>
+        </div>
+      </div>
+
+      <div class="output-panel">
+        <div class="output-head"><div><strong>產生結果</strong><span id="characterCount">0 字</span></div><button class="mini-button" id="resetButton" type="button">清空</button></div>
+        <textarea id="output" rows="18" aria-label="產生的 LINE 公告內容"></textarea>
+        <div class="output-actions"><button class="button" id="copyButton" type="button">複製公告</button><button class="button secondary" id="downloadButton" type="button">下載 TXT</button></div>
+        <p class="copy-status" id="copyStatus" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <p class="note">目前版本是前端靜態工具，不需要登入、不需要資料庫，也不會把資料送出瀏覽器。後續如果要做客戶帳號、付款、範本保存，再獨立接後端服務。</p>
+  <script src="app.js"></script>
+</body>
+</html>
