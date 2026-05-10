@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>廠語通 FactoryTong｜Factory LINE SOP System for Foreign Worker Communication</title>
+  <meta name="description" content="廠語通 FactoryTong 是給工廠老闆、主管、人資使用的 Factory LINE SOP System。把外籍員工加班、請假、工安、機台 SOP 與 LINE 群組公告整理成可複製、可翻譯、可追蹤的管理流程。">
+  <meta property="og:title" content="廠語通 FactoryTong">
+  <meta property="og:description" content="Factory LINE SOP System for Foreign Worker Communication. 把工廠每天重複交代的話，變成可複製、可翻譯、可追蹤的 LINE SOP 流程。">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://fishxit777.github.io/wanyutong-web/assets/blog/factory-line-translation.jpg">
+  <meta name="theme-color" content="#0b1720">
+  <style>
+    :root {
+      --bg:    #07090b;
+      --bg2:   #0d1117;
+      --bg3:   #141c24;
+      --panel: #07090b;
+      --ink:   #07090b;
+      --steel: #0d1117;
+      --card:  #0d1117;
+      --text:  #e8ddd0;
+      --muted: #7a7068;
+      --line:  rgba(251,146,60,.12);
+      --amber: #f97316;
+      --amber2:#fb923c;
+      --amber3:#ea580c;
+      --mint:  #fb923c;
+      --green: #f97316;
+      --cyan:  #fbbf24;
+      --shadow: 0 24px 70px rgba(0,0,0,.55);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--bg);
+      font-family: "Microsoft JhengHei","PingFang TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      line-height: 1.65;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* NAV */
+    .nav {
+      position: sticky; top: 0; z-index: 30;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 14px clamp(18px,5vw,64px);
+      border-bottom: 1px solid rgba(251,146,60,.1);
+      background: rgba(5,7,9,.94);
+      color: #fff;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 1px 0 rgba(0,0,0,.5), 0 8px 32px rgba(0,0,0,.3);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 900; }
+    .brand-mark {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 0 5px rgba(249,115,22,.18), 0 0 28px rgba(249,115,22,.6);
+      animation: amberPulse 2.8s ease-in-out infinite;
+    }
+    @keyframes amberPulse {
+      0%,100% { box-shadow: 0 0 0 5px rgba(249,115,22,.18), 0 0 28px rgba(249,115,22,.6); }
+      50%      { box-shadow: 0 0 0 8px rgba(249,115,22,.08), 0 0 14px rgba(249,115,22,.35); }
+    }
+    .nav-actions { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 800; }
+    .nav-link { color: rgba(255,255,255,.55); transition: color .2s; }
+    .nav-link:hover { color: rgba(255,255,255,.9); }
+
+    /* BUTTONS */
+    /* ── Liquid Fill Buttons ── */
+    .button {
+      position: relative; overflow: hidden; z-index: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 44px; padding: 10px 24px;
+      border: 1.5px solid rgba(249,115,22,.65); border-radius: 8px;
+      background: transparent; color: var(--amber2);
+      font-weight: 900; white-space: nowrap; cursor: pointer;
+      letter-spacing: .02em;
+      transition: color .28s, border-color .28s, transform .18s, box-shadow .18s;
+    }
+    .button::before {
+      content: ''; position: absolute; inset: 0; z-index: -1;
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      transform: translateY(105%);
+      transition: transform .32s cubic-bezier(.4, 0, .2, 1);
+    }
+    .button:hover::before { transform: translateY(0); }
+    .button:hover { color: #000; border-color: #f97316; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(249,115,22,.35); }
+
+    .button.secondary {
+      border-color: rgba(255,255,255,.14); color: rgba(255,255,255,.6);
+    }
+    .button.secondary::before {
+      background: rgba(255,255,255,.09);
+    }
+    .button.secondary:hover { color: #fff; border-color: rgba(255,255,255,.3); box-shadow: none; }
+
+    .button.mint {
+      border-color: rgba(249,115,22,.65); color: var(--amber2);
+    }
+    .button.mint::before {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    }
+    .button.mint:hover { color: #000; border-color: #f97316; }
+
+    /* HERO */
+    .hero {
+      position: relative; overflow: hidden;
+      min-height: calc(100vh - 74px);
+      color: #fff;
+      background: var(--bg);
+    }
+    .hero::before {
+      content: ""; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(251,146,60,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(251,146,60,.045) 1px, transparent 1px);
+      background-size: 56px 56px;
+    }
+    .hero::after {
+      content: ""; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 40%, rgba(249,115,22,.14) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(251,146,60,.08) 0%, transparent 45%),
+        linear-gradient(90deg, rgba(7,9,11,.97) 0%, rgba(7,9,11,.88) 45%, rgba(7,9,11,.28) 100%);
+    }
+    .hero img {
+      position: absolute; inset: 0 0 0 auto;
+      width: min(58vw,920px); height: 100%;
+      object-fit: cover; opacity: .45;
+      filter: saturate(.6) brightness(.7);
+    }
+    .hero-inner {
+      position: relative; z-index: 2;
+      display: grid; grid-template-columns: minmax(0,1fr) minmax(300px,410px);
+      gap: clamp(28px,5vw,72px); align-items: end;
+      max-width: 1200px; min-height: calc(100vh - 74px); margin: 0 auto;
+      padding: clamp(48px,8vw,92px) clamp(20px,5vw,32px) 52px;
+    }
+    .eyebrow {
+      margin: 0 0 16px;
+      color: var(--amber2);
+      font-size: 14px; font-weight: 900;
+      letter-spacing: .04em;
+    }
+    h1 {
+      max-width: 820px; margin: 0;
+      font-size: clamp(38px,7vw,84px);
+      line-height: 1.02; letter-spacing: 0;
+      color: #fff;
+    }
+    h2 { margin: 0; font-size: clamp(28px,4vw,46px); line-height: 1.16; letter-spacing: 0; color: #fff; }
+    h3 { margin: 0 0 9px; font-size: 21px; line-height: 1.25; color: #fff; }
+    .hero-copy { max-width: 720px; margin: 24px 0 0; color: rgba(255,255,255,.68); font-size: clamp(17px,2vw,22px); }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+
+    /* HERO CONSOLE */
+    .hero-console {
+      border: 1px solid rgba(251,146,60,.2); border-radius: 12px;
+      background: rgba(7,9,11,.82);
+      box-shadow: 0 0 0 1px rgba(251,146,60,.06), 0 24px 70px rgba(0,0,0,.55);
+      backdrop-filter: blur(12px);
+    }
+    .console-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 14px 16px; border-bottom: 1px solid rgba(251,146,60,.12);
+      font-size: 13px; color: rgba(255,255,255,.55);
+    }
+    .status-dot {
+      display: inline-flex; width: 9px; height: 9px; border-radius: 999px;
+      background: var(--amber); box-shadow: 0 0 14px rgba(249,115,22,.7);
+      animation: amberPulse 2.8s ease-in-out infinite;
+    }
+    .console-body { display: grid; gap: 10px; padding: 14px; }
+    .metric {
+      display: grid; grid-template-columns: auto 1fr; gap: 10px 14px; align-items: center;
+      padding: 13px; border: 1px solid rgba(251,146,60,.1); border-radius: 8px;
+      background: rgba(251,146,60,.04);
+      transition: background .25s, border-color .25s;
+    }
+    .metric:hover { background: rgba(251,146,60,.07); border-color: rgba(251,146,60,.2); }
+    .metric strong { font-size: 28px; line-height: 1; color: var(--amber2); }
+    .metric span { color: rgba(255,255,255,.5); font-size: 14px; }
+
+    /* SECTIONS */
+    .section { max-width: 1200px; margin: 0 auto; padding: 72px clamp(20px,5vw,32px); }
+    .section-head { max-width: 780px; margin-bottom: 32px; }
+    .lead { margin: 14px 0 0; color: var(--muted); font-size: 18px; line-height: 1.75; }
+
+    /* BAND */
+    .band {
+      background: rgba(13,17,23,.6);
+      border-top: 1px solid rgba(251,146,60,.07);
+      border-bottom: 1px solid rgba(251,146,60,.07);
+    }
+
+    /* GRID CARDS */
+    .grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
+    .card {
+      min-height: 190px; padding: 24px;
+      border: 1px solid rgba(251,146,60,.1); border-radius: 10px;
+      background: linear-gradient(160deg, rgba(18,22,28,.98), rgba(12,16,20,.95));
+      box-shadow: 0 8px 30px rgba(0,0,0,.35);
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+    }
+    .card:hover { border-color: rgba(251,146,60,.28); transform: translateY(-3px); box-shadow: 0 20px 50px rgba(0,0,0,.45), 0 0 20px rgba(249,115,22,.06); }
+    .card p { color: var(--muted); margin: 0; }
+
+    /* TAG */
+    .tag {
+      display: inline-flex; align-items: center;
+      min-height: 26px; margin-bottom: 14px; padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(249,115,22,.12); color: var(--amber2);
+      font-size: 12px; font-weight: 900;
+      border: 1px solid rgba(249,115,22,.25);
+    }
+
+    /* SYSTEM MAP */
+    .system-map { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; counter-reset: layer; }
+    .layer {
+      counter-increment: layer;
+      min-height: 180px; padding: 22px; border-radius: 10px;
+      background: linear-gradient(160deg, rgba(18,22,28,.98), rgba(12,16,20,.95));
+      border: 1px solid rgba(251,146,60,.1);
+      color: #fff;
+      transition: border-color .25s, transform .25s;
+    }
+    .layer:hover { border-color: rgba(251,146,60,.25); transform: translateY(-2px); }
+    .layer::before { content: "0" counter(layer); display: block; margin-bottom: 18px; color: var(--amber); font-weight: 900; font-size: 15px; }
+    .layer h3 { color: #fff; }
+    .layer p { color: rgba(255,255,255,.5); margin: 0; }
+
+    /* SPLIT + PANEL */
+    .split { display: grid; grid-template-columns: minmax(0,.85fr) minmax(320px,1fr); gap: 28px; align-items: start; }
+    .panel {
+      overflow: hidden; border: 1px solid rgba(251,146,60,.15); border-radius: 10px;
+      background: rgba(13,17,23,.9);
+      box-shadow: 0 0 0 1px rgba(251,146,60,.05), 0 20px 50px rgba(0,0,0,.4);
+    }
+    .panel-top { display: flex; gap: 8px; padding: 12px 14px; border-bottom: 1px solid rgba(251,146,60,.1); background: rgba(7,9,11,.6); }
+    .panel-dot { width: 10px; height: 10px; border-radius: 999px; background: rgba(251,146,60,.3); }
+    .panel-dot:first-child { background: rgba(249,115,22,.6); box-shadow: 0 0 8px rgba(249,115,22,.4); }
+    .panel-body { display: grid; gap: 10px; padding: 16px; }
+    .row {
+      display: grid; grid-template-columns: 120px 1fr auto; gap: 12px; align-items: center;
+      padding: 11px 13px; border: 1px solid rgba(251,146,60,.1); border-radius: 8px;
+      background: rgba(251,146,60,.03); font-size: 14px;
+      transition: border-color .2s, background .2s;
+    }
+    .row:hover { border-color: rgba(251,146,60,.22); background: rgba(251,146,60,.06); }
+    .row strong { color: var(--amber2); }
+    .row small { color: var(--muted); }
+
+    /* PRICING */
+    .pricing { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
+    .price {
+      padding: 26px; border: 1px solid rgba(251,146,60,.1); border-radius: 10px;
+      background: linear-gradient(160deg, rgba(18,22,28,.98), rgba(12,16,20,.95));
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+    }
+    .price:hover { transform: translateY(-3px); border-color: rgba(251,146,60,.22); box-shadow: 0 20px 50px rgba(0,0,0,.4); }
+    .price h3 { color: #fff; }
+    .price li { color: var(--muted); }
+    .price.featured {
+      border: 1px solid rgba(249,115,22,.45);
+      background: linear-gradient(145deg, rgba(249,115,22,.1) 0%, rgba(251,146,60,.04) 40%, rgba(14,18,24,.98) 70%);
+      box-shadow: 0 0 0 1px rgba(249,115,22,.18), 0 0 50px rgba(249,115,22,.1), 0 20px 50px rgba(0,0,0,.4);
+    }
+    .price.featured:hover { box-shadow: 0 0 0 1px rgba(249,115,22,.3), 0 0 70px rgba(249,115,22,.16), 0 24px 60px rgba(0,0,0,.5); }
+    .price.featured h3 { color: var(--amber2); }
+    .amount { margin: 0 0 18px; font-size: 32px; font-weight: 900; color: #fff; }
+    .price.featured .amount { color: var(--amber2); }
+    ul { margin: 0; padding-left: 20px; }
+    li + li { margin-top: 8px; }
+
+    /* CTA */
+    .cta {
+      padding: clamp(28px,5vw,46px); border-radius: 12px;
+      background:
+        radial-gradient(ellipse at 30% 50%, rgba(249,115,22,.1) 0%, transparent 60%),
+        linear-gradient(135deg, rgba(18,22,28,.99), rgba(12,16,20,.98));
+      border: 1px solid rgba(249,115,22,.2);
+      box-shadow: 0 0 0 1px rgba(249,115,22,.06), 0 30px 80px rgba(0,0,0,.5);
+      color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .cta::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, var(--amber), rgba(251,191,36,.5), transparent); opacity: .5; }
+    .cta .lead { color: rgba(255,255,255,.55); }
+
+    /* FOOTER */
+    footer { padding: 28px clamp(20px,5vw,64px); color: var(--muted); font-size: 14px; border-top: 1px solid rgba(251,146,60,.07); background: rgba(5,7,9,.8); }
+    footer strong { color: var(--amber2); }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #070809; }
+    ::-webkit-scrollbar-thumb { background: rgba(249,115,22,.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(249,115,22,.5); }
+
+    @media (max-width: 940px) {
+      .hero img { width: 100%; opacity: .2; }
+      .hero-inner, .split { grid-template-columns: 1fr; }
+      .grid, .system-map, .pricing { grid-template-columns: 1fr; }
+      .nav-actions .nav-link { display: none; }
+      .row { grid-template-columns: 1fr; }
+    }
+
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="#"><span class="brand-mark"></span><span>廠語通 FactoryTong</span></a>
+    <nav class="nav-actions" aria-label="主要導覽">
+      <a class="nav-link" href="app.html">產生器</a>
+      <a class="nav-link" href="admin.html">後台 Demo</a>
+      <a class="nav-link" href="#system">系統架構</a>
+      <a class="button mint" href="app.html">立即試用</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <img src="https://fishxit777.github.io/wanyutong-web/assets/blog/factory-line-translation.jpg" alt="工廠現場員工操作機台">
+      <div class="hero-inner">
+        <div>
+          <p class="eyebrow">廠語通 FactoryTong｜工廠現場 LINE SOP SaaS</p>
+          <h1>把工廠現場交代，變成外籍員工看得懂、主管追得到的 LINE SOP。</h1>
+          <p class="hero-copy">廠語通把加班、請假、工安、機台 SOP、宿舍規定與 LINE 群組公告，整理成可以產生、翻譯、留紀錄、追蹤回覆的工廠溝通流程。</p>
+          <div class="actions">
+            <a class="button mint" href="app.html">開啟公告產生器</a>
+            <a class="button secondary" href="admin.html">看後台 Demo</a>
+          </div>
+        </div>
+        <aside class="hero-console" aria-label="產品狀態">
+          <div class="console-head"><span><span class="status-dot"></span> SaaS MVP 已切出</span><span>GitHub Pages</span></div>
+          <div class="console-body">
+            <div class="metric"><strong>6</strong><span>常見工廠情境模板</span></div>
+            <div class="metric"><strong>3</strong><span>獨立頁面：首頁、工具、後台</span></div>
+            <div class="metric"><strong>0</strong><span>目前不動正式 LINE Bot 後端</span></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>現在完成的是「能展示、能收需求」的第一版。</h2>
+        <p class="lead">廠語通不是萬語通本體，而是從萬語通拆出來的工廠垂直產品：先打外籍員工溝通、LINE SOP 與現場管理場景，讓老闆一眼看懂價值。</p>
+      </div>
+      <div class="grid">
+        <article class="card"><span class="tag">已完成</span><h3>產品首頁</h3><p>把「廠語通 FactoryTong」講成老闆聽得懂的問題與解法，不再只是普通模板頁。</p></article>
+        <article class="card"><span class="tag">已完成</span><h3>LINE 公告產生器</h3><p>加班、請假、工安、機台 SOP、宿舍、LINE 群組規則，都能產生可貼到群組的文字。</p></article>
+        <article class="card"><span class="tag">新補上</span><h3>後台 Demo</h3><p>先做展示型管理看板，讓你 demo「公告紀錄、客戶名單、模板使用」的 SaaS 感。</p></article>
+      </div>
+    </section>
+
+    <section class="band" id="system">
+      <div class="section">
+        <div class="section-head">
+          <h2>廠語通跟萬語通的關係：同一個能力，不同產品入口。</h2>
+          <p class="lead">萬語通是 LINE 群組 AI 翻譯工具；廠語通 FactoryTong 是工廠主管的 LINE SOP 管理系統。它可以導流到萬語通，也可以未來獨立收費。</p>
+        </div>
+        <div class="system-map">
+          <div class="layer"><h3>FactoryTong SOP 包</h3><p>加班、請假、工安、宿舍、機台、群組規則模板。</p></div>
+          <div class="layer"><h3>產生器</h3><p>主管填欄位，一鍵產生 LINE 公告與翻譯指令。</p></div>
+          <div class="layer"><h3>後台</h3><p>看公告紀錄、客戶狀態、模板使用與導入進度。</p></div>
+          <div class="layer"><h3>萬語通</h3><p>真的要多語翻譯與 LINE 群組自動化時，導入萬語通。</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="split">
+        <div class="section-head">
+          <p class="eyebrow">Demo 話術重點</p>
+          <h2>不是賣翻譯，是賣主管少重複講、現場少誤會、LINE 留得住紀錄。</h2>
+          <p class="lead">如果老闆說「我們已有外勞仲介」或「Google 翻譯就好」，你可以直接示範：公告有沒有留紀錄？請假誰確認？工安誰回覆收到？這些才是廠語通要處理的管理成本。</p>
+          <div class="actions"><a class="button" href="app.html">產生一則公告</a><a class="button secondary" href="admin.html">查看管理看板</a></div>
+        </div>
+        <div class="panel" aria-label="後台示意">
+          <div class="panel-top"><span class="panel-dot"></span><span class="panel-dot"></span><span class="panel-dot"></span></div>
+          <div class="panel-body">
+            <div class="row"><strong>加班公告</strong><span>A 棟產線｜需回覆收到</span><small>已產生</small></div>
+            <div class="row"><strong>工安提醒</strong><span>護目鏡、手套、機台異常回報</span><small>待翻譯</small></div>
+            <div class="row"><strong>客戶狀態</strong><span>試用中：3 家工廠</span><small>待追蹤</small></div>
+            <div class="row"><strong>下一步</strong><span>導入 LINE 群組與萬語通翻譯</span><small>SaaS 升級</small></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="section">
+        <div class="section-head">
+          <h2>目前還沒做的，才是之後 SaaS 收費核心。</h2>
+          <p class="lead">第一版先能 demo、能收名單。等市場反應有了，再把登入、資料庫、付款與真正後端切出來。</p>
+        </div>
+        <div class="grid">
+          <article class="card"><span class="tag">下一階段</span><h3>帳號與客戶資料庫</h3><p>每家工廠有自己的公告紀錄、員工語言、模板與導入進度。</p></article>
+          <article class="card"><span class="tag">下一階段</span><h3>LINE 群組串接</h3><p>把產生器送出的公告直接丟到 LINE 群組，並追蹤誰回覆收到。</p></article>
+          <article class="card"><span class="tag">下一階段</span><h3>付款與方案權限</h3><p>Starter、Team、Business 分功能與用量，才是真正 SaaS 版本。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pricing">
+      <div class="section-head">
+        <h2>方案可以先這樣賣。</h2>
+        <p class="lead">不用等完整後端才開始賣。先用 demo 收需求，成交後再客製導入。</p>
+      </div>
+      <div class="pricing">
+        <article class="price"><h3>Starter</h3><p class="amount">NT$299</p><ul><li>SOP 模板包</li><li>公告產生器</li><li>適合先買來試</li></ul></article>
+        <article class="price featured"><h3>Team</h3><p class="amount">NT$1,500 起</p><ul><li>客製工廠公告</li><li>導入 LINE 群組規則</li><li>搭配萬語通試用</li></ul></article>
+        <article class="price"><h3>Business</h3><p class="amount">NT$5,000 起</p><ul><li>現場流程盤點</li><li>後台紀錄與管理</li><li>長期 SaaS 導入</li></ul></article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="cta">
+        <h2>下一步不是再想功能，是找 3 個老闆試講。</h2>
+        <p class="lead">用首頁講痛點，用產生器示範公告，用後台 Demo 說明未來可以追蹤。只要對方點頭，你就知道這條 SaaS 線有機會。</p>
+        <div class="actions"><a class="button mint" href="app.html">開啟產生器</a><a class="button secondary" href="admin.html">開啟後台 Demo</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><strong>廠語通 FactoryTong</strong>｜Factory LINE SOP System for Foreign Worker Communication。Powered by 萬語通，正式 LINE Bot 後端保持分離。</footer>
+</body>
+</html>

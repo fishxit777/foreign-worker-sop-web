@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>廠語通 FactoryTong｜工廠 LINE SOP 公告產生器</title>
+  <meta name="description" content="廠語通 FactoryTong 公告產生器。快速產生工廠外籍員工加班、請假、工安、機台 SOP、宿舍與 LINE 群組公告。">
+  <meta name="theme-color" content="#10202a">
+  <style>
+    :root {
+      --ink:        #07090b;
+      --muted:      #7a7068;
+      --line:       rgba(251,146,60,.12);
+      --paper:      #0d1117;
+      --green:      #f97316;
+      --green-dark: #ea580c;
+      --mint:       #fb923c;
+      --amber:      #f97316;
+      --amber2:     #fb923c;
+      --panel:      #0d1117;
+      --shadow:     0 18px 45px rgba(0,0,0,.55);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: #e8ddd0;
+      background: #07090b;
+      font-family: "Microsoft JhengHei","PingFang TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      line-height: 1.65;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* NAV */
+    .nav {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 14px clamp(20px,5vw,64px);
+      border-bottom: 1px solid rgba(251,146,60,.1);
+      background: rgba(5,7,9,.94);
+      color: #fff;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 1px 0 rgba(0,0,0,.5), 0 8px 32px rgba(0,0,0,.3);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; }
+    .brand-dot {
+      width: 13px; height: 13px; border-radius: 999px;
+      background: var(--amber);
+      box-shadow: 0 0 0 5px rgba(249,115,22,.18), 0 0 20px rgba(249,115,22,.6);
+      animation: amberPulse 2.8s ease-in-out infinite;
+    }
+    @keyframes amberPulse {
+      0%,100% { box-shadow: 0 0 0 5px rgba(249,115,22,.18), 0 0 20px rgba(249,115,22,.6); }
+      50%      { box-shadow: 0 0 0 8px rgba(249,115,22,.07), 0 0 10px rgba(249,115,22,.3); }
+    }
+
+    /* BUTTONS */
+    /* ── Liquid Fill Buttons ── */
+    .button {
+      position: relative; overflow: hidden; z-index: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 44px; padding: 10px 22px; border-radius: 8px;
+      border: 1.5px solid rgba(249,115,22,.65);
+      background: transparent; color: var(--amber2);
+      font: inherit; font-weight: 900; white-space: nowrap; cursor: pointer;
+      letter-spacing: .02em;
+      transition: color .28s, border-color .28s, transform .18s, box-shadow .18s;
+    }
+    .button::before {
+      content: ''; position: absolute; inset: 0; z-index: -1;
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      transform: translateY(105%);
+      transition: transform .32s cubic-bezier(.4, 0, .2, 1);
+    }
+    .button:hover::before { transform: translateY(0); }
+    .button:hover { color: #000; border-color: #f97316; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(249,115,22,.35); }
+
+    .button.secondary {
+      border-color: rgba(255,255,255,.14); color: rgba(255,255,255,.6);
+    }
+    .button.secondary::before { background: rgba(255,255,255,.09); }
+    .button.secondary:hover { color: #fff; border-color: rgba(255,255,255,.3); box-shadow: none; }
+
+    /* APP LAYOUT */
+    .app {
+      max-width: 1180px; margin: 0 auto;
+      padding: clamp(34px,6vw,72px) clamp(20px,5vw,32px) 56px;
+      color: #fff;
+    }
+    .eyebrow { margin: 0 0 16px; color: var(--amber2); font-size: 15px; font-weight: 900; letter-spacing: .04em; }
+    h1 { margin: 0; max-width: 860px; font-size: clamp(34px,5vw,64px); line-height: 1.08; letter-spacing: 0; }
+    .lead { max-width: 860px; margin: 18px 0 0; color: rgba(255,255,255,.6); font-size: clamp(17px,2vw,21px); }
+
+    /* GENERATOR */
+    .generator-layout {
+      display: grid; grid-template-columns: minmax(0,1fr) minmax(330px,470px);
+      gap: 18px; align-items: stretch; margin-top: 34px;
+    }
+    .generator-panel, .output-panel {
+      border: 1px solid rgba(251,146,60,.15); border-radius: 10px;
+      background: rgba(13,17,23,.9);
+      box-shadow: 0 0 0 1px rgba(249,115,22,.04), 0 18px 45px rgba(0,0,0,.45);
+    }
+    .generator-panel { padding: 22px; }
+
+    /* SCENARIO TABS */
+    .scenario-tabs { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin-bottom: 18px; }
+    .scenario-button, .mini-button {
+      position: relative; overflow: hidden; z-index: 0;
+      min-height: 42px; border: 1.5px solid rgba(255,255,255,.1); border-radius: 8px;
+      background: transparent; color: rgba(255,255,255,.6);
+      font: inherit; font-weight: 900; cursor: pointer;
+      transition: color .28s, border-color .28s, box-shadow .18s;
+    }
+    .scenario-button::before, .mini-button::before {
+      content: ''; position: absolute; inset: 0; z-index: -1;
+      background: rgba(255,255,255,.07);
+      transform: translateY(105%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+    }
+    .scenario-button:hover::before, .mini-button:hover::before { transform: translateY(0); }
+    .scenario-button:hover { border-color: rgba(251,146,60,.35); color: #fff; }
+    .scenario-button.active {
+      position: relative; overflow: hidden; z-index: 0;
+      border-color: rgba(249,115,22,.7); color: #000;
+    }
+    .scenario-button.active::before {
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      transform: translateY(0);
+    }
+    .scenario-button.active:hover { box-shadow: 0 4px 18px rgba(249,115,22,.3); }
+
+    /* SCENARIO SUMMARY */
+    .scenario-summary {
+      display: grid; gap: 4px; margin-bottom: 18px; padding: 14px 16px;
+      border-left: 3px solid var(--amber); border-radius: 8px;
+      background: rgba(249,115,22,.06);
+    }
+    .scenario-summary strong { font-size: 20px; color: #fff; }
+    .scenario-summary span { color: rgba(255,255,255,.6); }
+
+    /* FORM */
+    .form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+    .form-grid label { display: grid; gap: 7px; color: rgba(255,255,255,.7); font-size: 14px; font-weight: 900; }
+    input, select, textarea {
+      width: 100%; border: 1px solid rgba(255,255,255,.12); border-radius: 8px;
+      background: rgba(255,255,255,.06); color: #e8ddd0;
+      font: inherit; line-height: 1.5;
+      transition: border-color .2s, background .2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: rgba(249,115,22,.5);
+      background: rgba(249,115,22,.07);
+      box-shadow: 0 0 0 3px rgba(249,115,22,.1);
+    }
+    input, select { min-height: 46px; padding: 10px 12px; }
+    textarea { resize: vertical; padding: 10px 12px; }
+    select option { background: #0d1117; color: #e8ddd0; }
+    .wide-field { grid-column: 1 / -1; }
+
+    /* OUTPUT PANEL */
+    .output-panel {
+      display: flex; flex-direction: column; padding: 18px;
+      background: rgba(10,14,18,.95); color: #e8ddd0;
+    }
+    .output-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 12px;
+    }
+    .output-head div { display: grid; gap: 2px; }
+    .output-head span { color: var(--muted); font-size: 13px; }
+    .output-head strong { color: #fff; }
+    .output-head .mini-button {
+      min-height: 38px; padding: 0 13px;
+      border-color: rgba(255,255,255,.1); background: rgba(255,255,255,.04); color: rgba(255,255,255,.6);
+    }
+    #output {
+      flex: 1; min-height: 390px;
+      border-color: rgba(251,146,60,.12);
+      background: rgba(7,9,11,.8);
+      color: #e8ddd0; white-space: pre-wrap;
+    }
+    .output-actions { display: flex; gap: 10px; margin-top: 12px; }
+    .copy-status { min-height: 22px; margin: 10px 0 0; color: var(--amber2); font-size: 14px; font-weight: 900; }
+
+    /* NOTE */
+    .note {
+      max-width: 1180px; margin: 0 auto;
+      padding: 0 clamp(20px,5vw,32px) 38px;
+      color: rgba(255,255,255,.35); font-size: 14px;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #070809; }
+    ::-webkit-scrollbar-thumb { background: rgba(249,115,22,.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(249,115,22,.5); }
+
+    @media (max-width: 900px) {
+      .generator-layout, .form-grid { grid-template-columns: 1fr; }
+      .scenario-tabs { grid-template-columns: 1fr 1fr; }
+      .output-actions { flex-direction: column; }
+    }
+
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="index.html">
+      <span class="brand-dot"></span>
+      <span>廠語通 FactoryTong</span>
+    </a>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+      <a class="button secondary" href="admin.html">後台 Demo</a>
+      <a class="button secondary" href="index.html">回產品頁</a>
+    </div>
+  </header>
+
+  <main class="app">
+    <p class="eyebrow">FactoryTong 免費試用工具</p>
+    <h1>把現場口頭交代，變成可以貼到 LINE 的公告。</h1>
+    <p class="lead">選一個情境，填日期、時間、地點、主管與注意事項，廠語通會整理成中文公告加翻譯指令。這是 Factory LINE SOP System 的第一個獨立小程式。</p>
+
+    <section class="generator-layout" aria-label="廠語通 FactoryTong SOP 公告產生器">
+      <div class="generator-panel">
+        <div class="scenario-tabs" aria-label="情境選擇">
+          <button class="scenario-button active" type="button" data-scenario="overtime">加班</button>
+          <button class="scenario-button" type="button" data-scenario="leave">請假</button>
+          <button class="scenario-button" type="button" data-scenario="safety">工安</button>
+          <button class="scenario-button" type="button" data-scenario="machine">機台 SOP</button>
+          <button class="scenario-button" type="button" data-scenario="dorm">宿舍</button>
+          <button class="scenario-button" type="button" data-scenario="line">LINE 群組</button>
+        </div>
+
+        <div class="scenario-summary">
+          <strong id="scenarioTitle">加班通知</strong>
+          <span id="scenarioHelper">適合臨時加班、週末加班、趕出貨前的 LINE 公告。</span>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            公司名稱
+            <input id="company" type="text" value="廠語通示範工廠" autocomplete="organization">
+          </label>
+          <label>
+            目標語言
+            <select id="language">
+              <option value="越南文">越南文</option>
+              <option value="印尼文">印尼文</option>
+              <option value="泰文">泰文</option>
+              <option value="英文">英文</option>
+            </select>
+          </label>
+          <label>
+            <span data-label-for="date">加班日期</span>
+            <input id="date" type="text" placeholder="例如：5/15（星期五）">
+          </label>
+          <label>
+            <span data-label-for="time">加班時間</span>
+            <input id="time" type="text" placeholder="例如：18:00-21:00">
+          </label>
+          <label>
+            <span data-label-for="place">集合地點</span>
+            <input id="place" type="text" placeholder="例如：A 棟 1 樓產線入口">
+          </label>
+          <label>
+            <span data-label-for="owner">負責主管</span>
+            <input id="owner" type="text" placeholder="例如：王課長">
+          </label>
+          <label class="wide-field">
+            <span data-label-for="note">補充事項</span>
+            <textarea id="note" rows="3" placeholder="例如：請先吃飯，不能配合請今天下班前回覆。"></textarea>
+          </label>
+        </div>
+      </div>
+
+      <div class="output-panel">
+        <div class="output-head">
+          <div>
+            <strong>產生結果</strong>
+            <span id="characterCount">0 字</span>
+          </div>
+          <button class="mini-button" id="resetButton" type="button">清空</button>
+        </div>
+        <textarea id="output" rows="18" aria-label="產生的 LINE 公告內容"></textarea>
+        <div class="output-actions">
+          <button class="button" id="copyButton" type="button">複製公告</button>
+          <button class="button secondary" id="saveButton" type="button">存到後台</button>
+          <button class="button secondary" id="downloadButton" type="button">下載 TXT</button>
+        </div>
+        <p class="copy-status" id="copyStatus" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <p class="note">目前版本是廠語通 FactoryTong 前端靜態工具，不需要登入、不需要資料庫，也不會把資料送出瀏覽器。後續如果要做客戶帳號、付款、範本保存，再獨立接後端服務。</p>
+  <script src="app.js"></script>
+</body>
+</html>

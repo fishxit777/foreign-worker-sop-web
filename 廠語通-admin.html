@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>廠語通 FactoryTong 後台 Demo</title>
+  <meta name="description" content="廠語通 FactoryTong 後台 Demo。展示工廠客戶、LINE SOP 公告紀錄、模板使用與導入狀態。">
+  <meta name="theme-color" content="#0b1216">
+  <style>
+    :root {
+      --ink:    #07090b;
+      --steel:  #0d1117;
+      --panel:  #07090b;
+      --card:   #0d1117;
+      --muted:  #7a7068;
+      --line:   rgba(251,146,60,.12);
+      --green:  #f97316;
+      --mint:   #fb923c;
+      --amber:  #f97316;
+      --amber2: #fb923c;
+      --amber3: #fbbf24;
+      --red:    #ef4444;
+      --shadow: 0 18px 50px rgba(0,0,0,.55);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: #e8ddd0;
+      background: var(--panel);
+      font-family: "Microsoft JhengHei","PingFang TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      line-height: 1.58;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* SHELL */
+    .shell { min-height: 100vh; display: grid; grid-template-columns: 250px minmax(0,1fr); }
+
+    /* SIDEBAR */
+    .side {
+      position: sticky; top: 0; height: 100vh; padding: 24px;
+      color: #fff;
+      background: #050709;
+      border-right: 1px solid rgba(251,146,60,.08);
+      overflow: auto;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 34px; font-weight: 900; }
+    .brand-dot {
+      width: 14px; height: 14px; border-radius: 999px;
+      background: var(--amber);
+      box-shadow: 0 0 0 5px rgba(249,115,22,.16), 0 0 20px rgba(249,115,22,.55);
+      animation: amberPulse 2.8s ease-in-out infinite;
+    }
+    @keyframes amberPulse {
+      0%,100% { box-shadow: 0 0 0 5px rgba(249,115,22,.16), 0 0 20px rgba(249,115,22,.55); }
+      50%      { box-shadow: 0 0 0 8px rgba(249,115,22,.06), 0 0 10px rgba(249,115,22,.3); }
+    }
+
+    .nav { display: grid; gap: 8px; }
+    .nav a {
+      position: relative; overflow: hidden; z-index: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      min-height: 42px; padding: 10px 12px;
+      border: 1.5px solid rgba(255,255,255,.07); border-radius: 8px;
+      color: rgba(255,255,255,.55); font-weight: 800;
+      transition: color .28s, border-color .28s;
+    }
+    .nav a::before {
+      content: ''; position: absolute; inset: 0; z-index: -1;
+      background: rgba(249,115,22,.1);
+      transform: translateY(105%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+    }
+    .nav a:hover::before { transform: translateY(0); }
+    .nav a:hover { color: var(--amber2); border-color: rgba(249,115,22,.28); }
+    .nav a.active {
+      border-color: rgba(249,115,22,.45); color: var(--amber2);
+    }
+    .nav a.active::before { transform: translateY(0); background: rgba(249,115,22,.12); }
+    .nav a small { color: inherit; opacity: .7; }
+
+    .side-note {
+      margin-top: 28px; padding: 14px;
+      border: 1px solid rgba(251,146,60,.12); border-radius: 8px;
+      color: rgba(255,255,255,.45); font-size: 13px; line-height: 1.65;
+      background: rgba(249,115,22,.04);
+    }
+
+    /* MAIN */
+    .main { padding: 28px clamp(18px,4vw,42px) 46px; background: #07090b; }
+    .top {
+      display: flex; align-items: start; justify-content: space-between;
+      gap: 18px; margin-bottom: 22px;
+    }
+    h1 { margin: 0; font-size: clamp(28px,4vw,44px); line-height: 1.1; letter-spacing: 0; color: #fff; }
+    h2 { margin: 0 0 14px; font-size: 20px; color: #fff; }
+    p { margin: 0; }
+    .lead { max-width: 780px; margin-top: 10px; color: var(--muted); font-size: 16px; }
+
+    /* BUTTONS */
+    /* ── Liquid Fill Buttons ── */
+    .button {
+      position: relative; overflow: hidden; z-index: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 42px; padding: 9px 18px;
+      border: 1.5px solid rgba(249,115,22,.65); border-radius: 8px;
+      background: transparent; color: var(--amber2);
+      font: inherit; font-weight: 900; cursor: pointer; white-space: nowrap;
+      letter-spacing: .02em;
+      transition: color .28s, border-color .28s, transform .15s, box-shadow .18s;
+    }
+    .button::before {
+      content: ''; position: absolute; inset: 0; z-index: -1;
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      transform: translateY(105%);
+      transition: transform .32s cubic-bezier(.4, 0, .2, 1);
+    }
+    .button:hover::before { transform: translateY(0); }
+    .button:hover { color: #000; border-color: #f97316; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(249,115,22,.3); }
+
+    .button.secondary {
+      border-color: rgba(255,255,255,.12); color: rgba(255,255,255,.6);
+    }
+    .button.secondary::before { background: rgba(255,255,255,.08); }
+    .button.secondary:hover { color: #fff; border-color: rgba(255,255,255,.25); box-shadow: none; }
+
+    .button.danger {
+      border-color: rgba(239,68,68,.45); color: #f87171;
+    }
+    .button.danger::before { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+    .button.danger:hover { color: #fff; border-color: #ef4444; box-shadow: 0 6px 24px rgba(239,68,68,.25); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+
+    /* KPIs */
+    .kpis { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 14px; margin-bottom: 18px; }
+    .kpi {
+      min-height: 120px; padding: 18px;
+      border: 1px solid rgba(251,146,60,.12); border-radius: 10px;
+      background: linear-gradient(160deg, rgba(18,22,28,.98), rgba(12,16,20,.95));
+      box-shadow: 0 8px 30px rgba(0,0,0,.35);
+      position: relative; overflow: hidden;
+      transition: border-color .25s, transform .25s;
+    }
+    .kpi:hover { border-color: rgba(251,146,60,.28); transform: translateY(-2px); }
+    .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--amber), var(--amber3), transparent); opacity: .6; }
+    .kpi strong { display: block; font-size: 32px; line-height: 1; color: var(--amber2); }
+    .kpi span { display: block; margin-top: 10px; color: var(--muted); font-weight: 800; font-size: 13px; }
+
+    /* LAYOUT */
+    .layout { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(340px,.95fr); gap: 16px; align-items: start; }
+
+    /* CARDS */
+    .card {
+      border: 1px solid rgba(251,146,60,.12); border-radius: 10px;
+      background: linear-gradient(160deg, rgba(18,22,28,.98), rgba(12,16,20,.95));
+      box-shadow: 0 8px 30px rgba(0,0,0,.35);
+      overflow: hidden;
+    }
+    .card-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 14px 18px; border-bottom: 1px solid rgba(251,146,60,.1);
+      background: rgba(7,9,11,.5);
+    }
+    .card-body { padding: 16px 18px; }
+
+    /* LIST / ITEMS */
+    .list { display: grid; gap: 10px; }
+    .item {
+      display: grid; gap: 6px; padding: 13px;
+      border: 1px solid rgba(251,146,60,.1); border-radius: 8px;
+      background: rgba(251,146,60,.03);
+      transition: border-color .2s, background .2s;
+    }
+    .item:hover { border-color: rgba(251,146,60,.2); background: rgba(251,146,60,.06); }
+    .item-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .item-title { font-weight: 900; color: #fff; }
+    .item-meta { color: var(--muted); font-size: 13px; }
+
+    /* BADGES */
+    .badge {
+      display: inline-flex; align-items: center;
+      min-height: 26px; padding: 3px 9px; border-radius: 999px;
+      background: rgba(249,115,22,.12); color: var(--amber2);
+      font-size: 12px; font-weight: 900; white-space: nowrap;
+      border: 1px solid rgba(249,115,22,.22);
+    }
+    .badge.warn { background: rgba(251,191,36,.1); color: #fbbf24; border-color: rgba(251,191,36,.22); }
+    .badge.hot { background: rgba(239,68,68,.1); color: #f87171; border-color: rgba(239,68,68,.22); }
+
+    /* RECORDS */
+    .records { display: grid; gap: 10px; }
+    .record {
+      display: grid; gap: 8px; padding: 13px;
+      border: 1px solid rgba(251,146,60,.1); border-radius: 8px;
+      background: rgba(7,9,11,.5);
+    }
+    .record pre {
+      max-height: 140px; overflow: auto; margin: 0; padding: 10px;
+      border-radius: 8px; background: rgba(255,255,255,.04);
+      color: rgba(232,221,208,.85); white-space: pre-wrap;
+      font: 13px/1.6 "Microsoft JhengHei",sans-serif;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+
+    /* TEMPLATES */
+    .templates { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+    .template {
+      padding: 14px; border: 1px solid rgba(251,146,60,.1); border-radius: 8px;
+      background: rgba(251,146,60,.03);
+      transition: border-color .2s, background .2s;
+    }
+    .template:hover { border-color: rgba(251,146,60,.22); background: rgba(251,146,60,.07); }
+    .template strong { display: block; margin-bottom: 6px; color: #fff; }
+    .template span { color: var(--muted); font-size: 13px; }
+
+    /* SCRIPT BOX */
+    .script-box {
+      display: grid; gap: 10px; margin-top: 16px; padding: 16px;
+      border: 1px solid rgba(249,115,22,.18); border-radius: 8px;
+      background: rgba(249,115,22,.05);
+    }
+    .script-box strong { color: var(--amber2); }
+    textarea {
+      width: 100%; min-height: 120px; padding: 12px;
+      border: 1px solid rgba(255,255,255,.1); border-radius: 8px;
+      background: rgba(255,255,255,.05); color: #e8ddd0;
+      resize: vertical; font: inherit; line-height: 1.6;
+      transition: border-color .2s;
+    }
+    textarea:focus { outline: none; border-color: rgba(249,115,22,.4); background: rgba(249,115,22,.06); }
+
+    /* EMPTY STATE */
+    .empty {
+      padding: 20px; border: 1px dashed rgba(251,146,60,.2); border-radius: 8px;
+      color: var(--muted); background: rgba(249,115,22,.03);
+      text-align: center; line-height: 1.75;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #070809; }
+    ::-webkit-scrollbar-thumb { background: rgba(249,115,22,.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(249,115,22,.5); }
+
+    @media (max-width: 980px) {
+      .shell { grid-template-columns: 1fr; }
+      .side { position: static; height: auto; }
+      .kpis, .layout, .templates { grid-template-columns: 1fr; }
+      .top { flex-direction: column; }
+      .toolbar { justify-content: flex-start; }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <div class="brand"><span class="brand-dot"></span><span>廠語通後台</span></div>
+      <nav class="nav" aria-label="後台導覽">
+        <a class="active" href="#overview"><span>總覽</span><small>Demo</small></a>
+        <a href="#records"><span>公告紀錄</span><small id="navRecordCount">0</small></a>
+        <a href="#templates"><span>模板庫</span><small>6</small></a>
+        <a href="app.html"><span>產生器</span><small>開啟</small></a>
+        <a href="index.html"><span>產品頁</span><small>返回</small></a>
+      </nav>
+      <div class="side-note">這是展示型後台，先用瀏覽器 localStorage 模擬資料。正式 SaaS 才接登入、資料庫、付款與 LINE 回覆追蹤。</div>
+    </aside>
+
+    <main class="main">
+      <header class="top" id="overview">
+        <div>
+          <h1>管理看板 Demo</h1>
+          <p class="lead">讓工廠老闆看到：公告不是發出去就結束，廠語通後面還能追蹤客戶、模板、紀錄與導入進度。</p>
+        </div>
+        <div class="toolbar">
+          <a class="button secondary" href="app.html">新增公告</a>
+          <button class="button secondary" id="exportButton" type="button">匯出紀錄</button>
+          <button class="button danger" id="clearButton" type="button">清空 Demo</button>
+        </div>
+      </header>
+
+      <section class="kpis" aria-label="關鍵數字">
+        <article class="kpi"><strong id="recordCount">0</strong><span>公告紀錄</span></article>
+        <article class="kpi"><strong>6</strong><span>SOP 模板</span></article>
+        <article class="kpi"><strong>3</strong><span>試用客戶</span></article>
+        <article class="kpi"><strong>1</strong><span>待接正式後端</span></article>
+      </section>
+
+      <section class="layout">
+        <div class="card">
+          <div class="card-head"><h2>客戶導入管線</h2><span class="badge">可 demo</span></div>
+          <div class="card-body">
+            <div class="list">
+              <div class="item"><div class="item-row"><span class="item-title">高雄金屬加工廠</span><span class="badge hot">高意願</span></div><p class="item-meta">痛點：越南員工加班與請假常口頭講，主管想留 LINE 紀錄。</p></div>
+              <div class="item"><div class="item-row"><span class="item-title">桃園食品包裝廠</span><span class="badge warn">待回訪</span></div><p class="item-meta">痛點：印尼員工宿舍規則與工安提醒常重複溝通。</p></div>
+              <div class="item"><div class="item-row"><span class="item-title">台中機台零件廠</span><span class="badge">試用中</span></div><p class="item-meta">痛點：機台 SOP 換線時容易漏講步驟，想建立固定公告。</p></div>
+            </div>
+
+            <div class="script-box">
+              <strong>老闆回覆話術</strong>
+              <textarea id="replyScript">如果你們現場有外籍員工，我們先不是要你換系統，而是先用廠語通 FactoryTong 把每天重複講的加班、請假、工安、SOP 整理成 LINE 可以留紀錄的公告。你可以先用這個 Demo 試產生一則，覺得有用再導入萬語通群組翻譯。</textarea>
+              <button class="button" id="copyScriptButton" type="button">複製話術</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="records">
+          <div class="card-head"><h2>最近公告紀錄</h2><span class="badge" id="recordBadge">0 則</span></div>
+          <div class="card-body">
+            <div class="records" id="recordsList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="templates" style="margin-top:16px;">
+        <div class="card-head"><h2>SOP 模板庫</h2><span class="badge">Starter 可賣</span></div>
+        <div class="card-body">
+          <div class="templates">
+            <div class="template"><strong>加班通知</strong><span>適合臨時加班、週末加班、趕出貨。</span></div>
+            <div class="template"><strong>請假規則</strong><span>適合新人報到、病假、事假、缺勤管理。</span></div>
+            <div class="template"><strong>工安提醒</strong><span>適合安全帽、手套、護目鏡、機台異常。</span></div>
+            <div class="template"><strong>機台 SOP</strong><span>適合換線、新機台、交接班、操作步驟。</span></div>
+            <div class="template"><strong>宿舍規定</strong><span>適合清潔、音量、訪客、設備報修。</span></div>
+            <div class="template"><strong>LINE 群組規則</strong><span>適合公告回覆、看不懂提問、交接留紀錄。</span></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const storageKey = "factorytong-sop-records";
+
+    function readRecords() {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey) || "[]");
+      } catch {
+        return [];
+      }
+    }
+
+    function formatDate(value) {
+      if (!value) return "剛剛";
+      return new Intl.DateTimeFormat("zh-TW", {
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(new Date(value));
+    }
+
+    function renderRecords() {
+      const records = readRecords();
+      const list = document.getElementById("recordsList");
+      document.getElementById("recordCount").textContent = records.length;
+      document.getElementById("navRecordCount").textContent = records.length;
+      document.getElementById("recordBadge").textContent = `${records.length} 則`;
+
+      if (!records.length) {
+        list.innerHTML = '<div class="empty">目前還沒有公告紀錄。先到「產生器」產生一則，按「存到後台」，這裡就會出現。</div>';
+        return;
+      }
+
+      list.innerHTML = records.slice(0, 8).map((record) => `
+        <article class="record">
+          <div class="item-row">
+            <span class="item-title">${record.scenarioLabel || "公告"}</span>
+            <span class="badge">${record.language || "多語"}</span>
+          </div>
+          <div class="item-meta">${record.company || "未命名工廠"}｜${record.place || "未填地點"}｜${formatDate(record.createdAt)}</div>
+          <pre>${escapeHtml(record.content || "")}</pre>
+        </article>
+      `).join("");
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function exportRecords() {
+      const records = readRecords();
+      const blob = new Blob([JSON.stringify(records, null, 2)], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `factorytong-records-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function copyScript() {
+      const script = document.getElementById("replyScript").value;
+      try {
+        await navigator.clipboard.writeText(script);
+      } catch {
+        document.getElementById("replyScript").select();
+        document.execCommand("copy");
+      }
+      document.getElementById("copyScriptButton").textContent = "已複製";
+      window.setTimeout(() => {
+        document.getElementById("copyScriptButton").textContent = "複製話術";
+      }, 1800);
+    }
+
+    document.getElementById("exportButton").addEventListener("click", exportRecords);
+    document.getElementById("copyScriptButton").addEventListener("click", copyScript);
+    document.getElementById("clearButton").addEventListener("click", () => {
+      if (!confirm("確定清空這台瀏覽器裡的 Demo 公告紀錄？")) return;
+      localStorage.removeItem(storageKey);
+      renderRecords();
+    });
+
+    renderRecords();
+  </script>
+</body>
+</html>
