@@ -14,11 +14,18 @@ GitHub Pages 預期網址：
 https://fishxit777.github.io/foreign-worker-sop-web/
 ```
 
+SOP 產生器網址：
+
+```text
+https://fishxit777.github.io/foreign-worker-sop-web/app.html
+```
+
 ## 檔案
 
-- `index.html`：一頁式網站
+- `index.html`：一頁式產品網站
+- `app.html`：外籍員工 LINE 公告產生器
+- `app.js`：加班、請假、工安、機台 SOP、宿舍、LINE 群組公告產生邏輯
 - 工廠主視覺：引用萬語通主站公開圖片
-- 萬語通 LINE QR：已內嵌在 `index.html`
 - `.nojekyll`：讓 GitHub Pages 直接使用靜態檔
 
 ## 上架方式
@@ -37,3 +44,11 @@ https://fishxit777.github.io/foreign-worker-sop-web/
 SOP 包負責讓老闆先理解「每天重複溝通可以模板化」。
 
 萬語通負責後續導入 LINE 群組，產生月費 SaaS 收入。
+
+## 程式功能
+
+- 選擇現場情境
+- 填入日期、時間、地點、主管與補充事項
+- 產生可貼到 LINE 的中文公告與翻譯指令
+- 一鍵複製公告
+- 下載 TXT 備份
